@@ -32,4 +32,19 @@ export class TasksService {
 
     return newTask;
   }
+
+  update(id: string, body: any) {
+    const taskIndex = this.tasks.findIndex((tasks) => tasks.id === Number(id)); //findeIndex é para pegar o index da task e achando a poosição dele na lista
+
+    if (taskIndex >= 0) {
+      const taskItem = this.tasks[taskIndex];
+
+      this.tasks[taskIndex] = {
+        ...taskItem, //mantem tudo oq já tem
+        ...body, //vai atualizar com oq retornar do body
+      };
+    }
+
+    return 'tarefa atulizada com sucesso';
+  }
 }
