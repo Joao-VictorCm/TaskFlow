@@ -9,4 +9,8 @@ export class TasksService {
   findOne(id: string) {
     return 'Buscar tarefa com ID ' + id;
   }
+
+  create(body: any) {
+    return body;
+  }
 }
