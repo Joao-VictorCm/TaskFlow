@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Task } from './entities/task.entity';
 
 @Injectable()
@@ -17,7 +17,11 @@ export class TasksService {
   }
 
   findOne(id: string) {
-    return this.tasks.find((task) => task.id === Number(id)); //verificando se tem o id mandado pelo usuario na lista de tarefas
+    const task = this.tasks.find((task) => task.id === Number(id)); //verificando se tem o id mandado pelo usuario na lista de tarefas
+
+    if (task) return task; //se não existir ira retornar false
+
+    throw new HttpException('Essa tarefa não existe', HttpStatus.NOT_FOUND); //tratando o erro caso a task não existe
   }
 
   create(body: any) {
@@ -36,15 +40,18 @@ export class TasksService {
   update(id: string, body: any) {
     const taskIndex = this.tasks.findIndex((tasks) => tasks.id === Number(id)); //findeIndex é para pegar o index da task e achando a poosição dele na lista
 
-    if (taskIndex >= 0) {
-      const taskItem = this.tasks[taskIndex];
-
-      this.tasks[taskIndex] = {
-        ...taskItem, //mantem tudo oq já tem
-        ...body, //vai atualizar com oq retornar do body
-      };
+    if (taskIndex < 0) {
+      //verificando se a task existe
+      throw new HttpException('Essa tarefa não existe', HttpStatus.NOT_FOUND); // Resposta se tiver erro
     }
 
-    return 'tarefa atulizada com sucesso';
+    const taskItem = this.tasks[taskIndex];
+
+    this.tasks[taskIndex] = {
+      ...taskItem, //mantem tudo oq já tem
+      ...body, //vai atualizar com oq retornar do body
+    };
+
+    return this.tasks[taskIndex];
   }
 }
