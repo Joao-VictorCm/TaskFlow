@@ -18,8 +18,8 @@ export class TasksService {
     return this.tasks;
   }
 
-  findOne(id: string) {
-    const task = this.tasks.find((task) => task.id === Number(id)); //verificando se tem o id mandado pelo usuario na lista de tarefas
+  findOne(id: number) {
+    const task = this.tasks.find((task) => task.id === id); //verificando se tem o id mandado pelo usuario na lista de tarefas
 
     if (task) return task; //se não existir ira retornar false
 
@@ -40,8 +40,8 @@ export class TasksService {
     return newTask;
   }
 
-  update(id: string, updateTaskDto: UpdateTaskDto) {
-    const taskIndex = this.tasks.findIndex((tasks) => tasks.id === Number(id)); //findeIndex é para pegar o index da task e achando a poosição dele na lista
+  update(id: number, updateTaskDto: UpdateTaskDto) {
+    const taskIndex = this.tasks.findIndex((tasks) => tasks.id === id); //findeIndex é para pegar o index da task e achando a poosição dele na lista
 
     if (taskIndex < 0) {
       //verificando se a task existe
@@ -58,8 +58,8 @@ export class TasksService {
     return this.tasks[taskIndex];
   }
 
-  delete(id: string) {
-    const taskIndex = this.tasks.findIndex((tasks) => tasks.id === Number(id));
+  delete(id: number) {
+    const taskIndex = this.tasks.findIndex((tasks) => tasks.id === id);
 
     if (taskIndex < 0) {
       throw new HttpException('Essa tarefa não existe', HttpStatus.NOT_FOUND);
