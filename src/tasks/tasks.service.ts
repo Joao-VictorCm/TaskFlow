@@ -54,4 +54,18 @@ export class TasksService {
 
     return this.tasks[taskIndex];
   }
+
+  delete(id: string) {
+    const taskIndex = this.tasks.findIndex((tasks) => tasks.id === Number(id));
+
+    if (taskIndex < 0) {
+      throw new HttpException('Essa tarefa não existe', HttpStatus.NOT_FOUND);
+    }
+
+    this.tasks.splice(taskIndex, 1); //remove o primeiro item retornado do taskIndex
+
+    return {
+      message: 'Tarefa excluida com sucesso!',
+    };
+  }
 }
