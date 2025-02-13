@@ -1,5 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Task } from './entities/task.entity';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -24,12 +26,13 @@ export class TasksService {
     throw new HttpException('Essa tarefa não existe', HttpStatus.NOT_FOUND); //tratando o erro caso a task não existe
   }
 
-  create(body: any) {
+  create(createTaskDto: CreateTaskDto) {
     const newId = this.tasks.length + 1; //criando um id novo
 
     const newTask = {
       id: newId,
-      ...body,
+      ...createTaskDto, //neste caso a task criada vai iniciar com id automatico o retorno do usuario e o completed como false já
+      completed: false,
     };
 
     this.tasks.push(newTask); //.push para add a lista de tarefas
@@ -37,7 +40,7 @@ export class TasksService {
     return newTask;
   }
 
-  update(id: string, body: any) {
+  update(id: string, updateTaskDto: UpdateTaskDto) {
     const taskIndex = this.tasks.findIndex((tasks) => tasks.id === Number(id)); //findeIndex é para pegar o index da task e achando a poosição dele na lista
 
     if (taskIndex < 0) {
@@ -49,7 +52,7 @@ export class TasksService {
 
     this.tasks[taskIndex] = {
       ...taskItem, //mantem tudo oq já tem
-      ...body, //vai atualizar com oq retornar do body
+      ...updateTaskDto, //vai atualizar com oq retornar do body
     };
 
     return this.tasks[taskIndex];
