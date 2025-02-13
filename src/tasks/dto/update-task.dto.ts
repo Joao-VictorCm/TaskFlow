@@ -1,17 +1,27 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional } from 'class-validator';
 
-export class UpdateTaskDto {
-  @IsString()
-  @IsOptional()
-  readonly name?: string;
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateTaskDto } from './create-task.dto';
 
-  @IsString()
-  @IsOptional()
-  readonly description?: string;
+// export class UpdateTaskDto {
+//   @IsString()
+//   @IsOptional()
+//   readonly name?: string;
 
+//   @IsString()
+//   @IsOptional()
+//   readonly description?: string;
+
+//   @IsBoolean()
+//   @IsOptional()
+//   readonly completed?: boolean;
+// }
+
+// colocar o ? na frete imforma que é opcional atulizar esses itens
+
+export class UpdateTaskDto extends PartialType(CreateTaskDto) {
+  //Reaproveita os itens mas os torna opcionais
   @IsBoolean()
   @IsOptional()
   readonly completed?: boolean;
 }
-
-// colocar o ? na frete imforma que é opcional atulizar esses itens
