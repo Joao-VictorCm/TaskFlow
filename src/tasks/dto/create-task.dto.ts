@@ -18,6 +18,6 @@ export class CreateTaskDto {
   @IsString({ message: 'O nome precisar ser um texto' })
   @IsNotEmpty({ message: 'A descrição não pode estar vazia' })
   @MinLength(5, { message: 'A descrição precisa ter 5 caracteres' })
-  @MaxLength(35, { message: 'Maximo de 35 caracteres permitidos' })
+  @MaxLength(70, { message: 'Maximo de 35 caracteres permitidos' })
   readonly description: string;
 }

@@ -34,36 +34,38 @@ export class TasksService {
     throw new HttpException('Essa tarefa não existe', HttpStatus.NOT_FOUND); //tratando o erro caso a task não existe
   }
 
-  create(createTaskDto: CreateTaskDto) {
-    const newId = this.tasks.length + 1; //criando um id novo
-
-    const newTask = {
-      id: newId,
-      ...createTaskDto, //neste caso a task criada vai iniciar com id automatico o retorno do usuario e o completed como false já
-      completed: false,
-    };
-
-    this.tasks.push(newTask); //.push para add a lista de tarefas
+  async create(createTaskDto: CreateTaskDto) {
+    const newTask = await this.prisma.task.create({
+      data: {
+        name: createTaskDto.name,
+        description: createTaskDto.description,
+        completed: false,
+      },
+    });
 
     return newTask;
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    const taskIndex = this.tasks.findIndex((tasks) => tasks.id === id); //findeIndex é para pegar o index da task e achando a poosição dele na lista
+  async update(id: number, updateTaskDto: UpdateTaskDto) {
+    const findTask = await this.prisma.task.findFirst({
+      where: {
+        id: id, //Verificando se o id existe
+      },
+    });
 
-    if (taskIndex < 0) {
-      //verificando se a task existe
-      throw new HttpException('Essa tarefa não existe', HttpStatus.NOT_FOUND); // Resposta se tiver erro
+    if (!findTask) {
+      //Se não existir
+      throw new HttpException('Essa tarefa não existe!', HttpStatus.NOT_FOUND);
     }
 
-    const taskItem = this.tasks[taskIndex];
+    const task = await this.prisma.task.update({
+      where: {
+        id: findTask.id,
+      },
+      data: updateTaskDto, //só da para passar assim pois colocamos esses dados como opcional no UpdateTaskDto
+    });
 
-    this.tasks[taskIndex] = {
-      ...taskItem, //mantem tudo oq já tem
-      ...updateTaskDto, //vai atualizar com oq retornar do body
-    };
-
-    return this.tasks[taskIndex];
+    return task;
   }
 
   delete(id: number) {
