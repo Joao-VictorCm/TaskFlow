@@ -47,38 +47,67 @@ export class TasksService {
   }
 
   async update(id: number, updateTaskDto: UpdateTaskDto) {
-    const findTask = await this.prisma.task.findFirst({
-      where: {
-        id: id, //Verificando se o id existe
-      },
-    });
+    try {
+      const findTask = await this.prisma.task.findFirst({
+        where: {
+          id: id, //Verificando se o id existe
+        },
+      });
 
-    if (!findTask) {
-      //Se não existir
-      throw new HttpException('Essa tarefa não existe!', HttpStatus.NOT_FOUND);
+      if (!findTask) {
+        //Se não existir
+        throw new HttpException(
+          'Essa tarefa não existe!',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const task = await this.prisma.task.update({
+        where: {
+          id: findTask.id,
+        },
+        data: updateTaskDto, //só da para passar assim pois colocamos esses dados como opcional no UpdateTaskDto
+      });
+
+      return task;
+    } catch (err) {
+      throw new HttpException(
+        'Falha ao deletar essa tarefa',
+        HttpStatus.BAD_REQUEST,
+      );
     }
-
-    const task = await this.prisma.task.update({
-      where: {
-        id: findTask.id,
-      },
-      data: updateTaskDto, //só da para passar assim pois colocamos esses dados como opcional no UpdateTaskDto
-    });
-
-    return task;
   }
 
-  delete(id: number) {
-    const taskIndex = this.tasks.findIndex((tasks) => tasks.id === id);
+  async delete(id: number) {
+    try {
+      const findTask = await this.prisma.task.findFirst({
+        where: {
+          id: id, //Verificando se o id existe
+        },
+      });
 
-    if (taskIndex < 0) {
-      throw new HttpException('Essa tarefa não existe', HttpStatus.NOT_FOUND);
+      if (!findTask) {
+        //Se não existir o id
+        throw new HttpException(
+          'Essa tarefa não existe!',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      await this.prisma.task.delete({
+        where: {
+          id: findTask.id,
+        },
+      });
+
+      return {
+        message: 'Tarefa deletada com sucesso !',
+      };
+    } catch (err) {
+      throw new HttpException(
+        'Falha ao deletar essa tarefa',
+        HttpStatus.BAD_REQUEST,
+      );
     }
-
-    this.tasks.splice(taskIndex, 1); //remove o primeiro item retornado do taskIndex
-
-    return {
-      message: 'Tarefa excluida com sucesso!',
-    };
   }
 }
