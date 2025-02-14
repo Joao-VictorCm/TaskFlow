@@ -2,9 +2,12 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Task } from './entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TasksService {
+  constructor(private prisma: PrismaService) {}
+
   private tasks: Task[] = [
     {
       id: 1,
@@ -14,14 +17,19 @@ export class TasksService {
     },
   ];
 
-  findAll() {
-    return this.tasks;
+  async findAll() {
+    const allTask = await this.prisma.task.findMany(); //findMany faz pegar todos os dados do sql do id ao date
+    return allTask;
   }
 
-  findOne(id: number) {
-    const task = this.tasks.find((task) => task.id === id); //verificando se tem o id mandado pelo usuario na lista de tarefas
+  async findOne(id: number) {
+    const task = await this.prisma.task.findFirst({
+      where: {
+        id: id, //findFirst faz ele retornar o primeiro id q é igual ao id  caso achar retorna a const task
+      },
+    });
 
-    if (task) return task; //se não existir ira retornar false
+    if (task?.name) return task; //se o task existir vai retorna-la se não vai cair no erro
 
     throw new HttpException('Essa tarefa não existe', HttpStatus.NOT_FOUND); //tratando o erro caso a task não existe
   }
