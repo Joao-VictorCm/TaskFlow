@@ -9,15 +9,6 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 export class TasksService {
   constructor(private prisma: PrismaService) {}
 
-  private tasks: Task[] = [
-    {
-      id: 1,
-      name: 'Concluir o curso de Nest',
-      description: 'Finalizar o curso entendendo todos os conceitos abordados',
-      completed: false,
-    },
-  ];
-
   async findAll(paginationDto?: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto || {};
 
