@@ -22,4 +22,19 @@ model Task {
 
 
   createdAt DateTime? @default(now())
+
+  //Ligando tabelas
+  userId Int?
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade) //onDelete: Cascade caso o usuario ser deletado as suas tarefas tmb vão ser
+  //Ligando tabelas
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  name String
+  passwordHash String
+  email String @unique
+
+  createdAt DateTime? @default(now())
+  Task Task[] //Ligando tabelas
 }
