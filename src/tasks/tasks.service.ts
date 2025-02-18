@@ -37,15 +37,23 @@ export class TasksService {
   }
 
   async create(createTaskDto: CreateTaskDto) {
-    const newTask = await this.prisma.task.create({
-      data: {
-        name: createTaskDto.name,
-        description: createTaskDto.description,
-        completed: false,
-      },
-    });
+    try {
+      const newTask = await this.prisma.task.create({
+        data: {
+          name: createTaskDto.name,
+          description: createTaskDto.description,
+          completed: false,
+          userId: createTaskDto.userId,
+        },
+      });
 
-    return newTask;
+      return newTask;
+    } catch (err) {
+      throw new HttpException(
+        'Falha ao cadastrar tarefa!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   async update(id: number, updateTaskDto: UpdateTaskDto) {
@@ -68,7 +76,15 @@ export class TasksService {
         where: {
           id: findTask.id,
         },
-        data: updateTaskDto, //só da para passar assim pois colocamos esses dados como opcional no UpdateTaskDto
+        data: {
+          name: updateTaskDto?.name ? updateTaskDto?.name : findTask.name,
+          description: updateTaskDto?.description
+            ? updateTaskDto?.description
+            : findTask.description,
+          completed: updateTaskDto?.completed
+            ? updateTaskDto?.completed
+            : findTask.completed,
+        },
       });
 
       return task;

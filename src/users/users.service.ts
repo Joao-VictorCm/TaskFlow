@@ -15,6 +15,7 @@ export class UsersService {
         id: true,
         name: true, //isso é para retornar apenas esses itens quando o usuario for cadastrado na resposta do terminal
         email: true,
+        Task: true,
       },
     });
 

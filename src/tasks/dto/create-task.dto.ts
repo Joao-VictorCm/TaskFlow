@@ -7,7 +7,13 @@ aceita trabalhar
 > readonly deixa o item apenas para leitura
 */
 
-import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreateTaskDto {
   @IsString({ message: 'O nome precisar ser um texto' })
@@ -20,4 +26,8 @@ export class CreateTaskDto {
   @MinLength(5, { message: 'A descrição precisa ter 5 caracteres' })
   @MaxLength(70, { message: 'Maximo de 35 caracteres permitidos' })
   readonly description: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  readonly userId: number;
 }
