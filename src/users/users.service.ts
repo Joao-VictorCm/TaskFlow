@@ -86,4 +86,33 @@ export class UsersService {
       );
     }
   }
+
+  async delete(id: number) {
+    try {
+      const user = await this.prisma.user.findFirst({
+        where: {
+          id: id,
+        },
+      });
+
+      if (!user) {
+        throw new HttpException('Usuario não existe!', HttpStatus.BAD_REQUEST);
+      }
+
+      await this.prisma.user.delete({
+        where: {
+          id: user.id,
+        },
+      });
+
+      return {
+        message: 'Usuario foi deletado',
+      };
+    } catch (err) {
+      throw new HttpException(
+        'Falha ao deletar  usuario!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 }
