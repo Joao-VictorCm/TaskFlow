@@ -24,17 +24,11 @@ import { AuthAdminGuard } from 'src/common/guards/admin.guard';
 @Controller('tasks')
 @UseGuards(AuthAdminGuard)
 export class TasksController {
-  constructor(
-    private readonly taskService: TasksService,
-
-    @Inject('Key_Token')
-    private readonly keyToken: string,
-  ) {}
+  constructor(private readonly taskService: TasksService) {}
   @Get()
   @UseInterceptors(LoggerInterceptor)
   @UseInterceptors(AddHeaderIntercptor)
   findAllTasks(@Query() paginationDto: PaginationDto) {
-    //console.log(this.keyToken);
     return this.taskService.findAll(paginationDto);
   }
 
