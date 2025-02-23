@@ -14,6 +14,10 @@ import { ApiExceptionFilter } from 'src/common/filters/exception-filter';
       provide: APP_FILTER,
       useClass: ApiExceptionFilter, //Toda as rotas de task vai passar por esse filtro se lançamos uma exceção
     },
+    {
+      provide: 'Key_Token',
+      useValue: 'Token_@516581',
+    },
   ],
 })
 export class TasksModule {}
