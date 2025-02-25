@@ -2,10 +2,14 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { HashingServiceProtocol } from 'src/auth/hash/hash.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly hashingService: HashingServiceProtocol,
+  ) {}
   async findOne(id: number) {
     const user = await this.prisma.user.findFirst({
       where: {
@@ -26,11 +30,15 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     try {
+      const passwordHash = await this.hashingService.hash(
+        createUserDto.password,
+      ); //Pegando a senha e gerando o hash já
+
       const user = await this.prisma.user.create({
         data: {
           name: createUserDto.name,
           email: createUserDto.email,
-          passwordHash: createUserDto.password,
+          passwordHash: passwordHash,
         },
         select: {
           id: true,
@@ -61,14 +69,26 @@ export class UsersService {
         throw new HttpException('Usuario não existe!', HttpStatus.BAD_REQUEST);
       }
 
+      const dataUser: { name?: string; passwordHash?: string } = {
+        name: updateUserDto.name ? updateUserDto.name : user.name,
+      };
+
+      if (updateUserDto?.password) {
+        //Se tiver o password vai gerar a nova senha
+        const passwordHash = await this.hashingService.hash(
+          updateUserDto?.password,
+        );
+        dataUser['passwordHash'] = passwordHash; // Gerando a nova senha
+      }
+
       const updateUser = await this.prisma.user.update({
         where: {
           id: user.id,
         },
         data: {
-          name: updateUserDto.name ? updateUserDto.name : user.name,
-          passwordHash: updateUserDto.password
-            ? updateUserDto.password
+          name: dataUser.name,
+          passwordHash: dataUser?.passwordHash
+            ? dataUser?.passwordHash
             : user.passwordHash,
         },
         select: {
