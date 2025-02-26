@@ -1,13 +1,18 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { SignInDto } from './dto/signin.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingServiceProtocol } from './hash/hash.service';
+import jwtConfig from './config/jwt.config';
+import { ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private readonly hashingService: HashingServiceProtocol,
+
+    @Inject(jwtConfig.KEY)
+    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
   ) {}
   async authenticate(signInDto: SignInDto) {
     const user = await this.prisma.user.findFirst({
