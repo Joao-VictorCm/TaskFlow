@@ -22,7 +22,6 @@ export class UsersController {
   constructor(private readonly userService: UsersService) {}
   @Get(':id')
   findOneUser(@Param('id', ParseIntPipe) id: number) {
-    console.log('Token teste: ', process.env.TOKEN_KEY);
     return this.userService.findOne(id);
   }
 
@@ -38,12 +37,15 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @TokenPatloadParm() tokenPayLoad: PayloadTokenDto,
   ) {
-    console.log('id user', tokenPayLoad);
-    return this.userService.update(id, updateUserDto);
+    return this.userService.update(id, updateUserDto, tokenPayLoad);
   }
 
+  @UseGuards(AuthTokenGuard)
   @Delete(':id')
-  deleteUser(@Param('id', ParseIntPipe) id: number) {
-    return this.userService.delete(id);
+  deleteUser(
+    @Param('id', ParseIntPipe) id: number,
+    @TokenPatloadParm() tokenPayLoad: PayloadTokenDto,
+  ) {
+    return this.userService.delete(id, tokenPayLoad);
   }
 }
