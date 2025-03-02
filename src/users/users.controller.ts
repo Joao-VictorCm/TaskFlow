@@ -3,7 +3,9 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
+  ParseFilePipeBuilder,
   ParseIntPipe,
   Patch,
   Post,
@@ -61,8 +63,21 @@ export class UsersController {
   @Post('upload')
   async uploadAvatar(
     @TokenPatloadParm() tokenPayLoad: PayloadTokenDto,
-    @UploadedFile() file: Express.Multer.File,
     //@UploadedFile() files: Express.Multer.File,
+    @UploadedFile(
+      //tipos de imagens que aceitam conforme oq colocamos abaixo
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: /jpeg|jpg|png/g, //tipos de img aceitas
+        })
+        .addMaxSizeValidator({
+          maxSize: 3 * (1024 * 1024), //tamanho da img neste caso 3 MB
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
+    )
+    file: Express.Multer.File,
   ) {
     const mimeType = file.mimetype;
     const fileExtension = path
@@ -79,7 +94,7 @@ export class UsersController {
     await fs.writeFile(fileLocale, file.buffer); //.buffer é o nome do arquivo da img
 
     //Exemplo de codigo para varios uploads de um vez
-    // files.forEach(async (file) => {
+    // files.forEach(async file => {
     //   const fileExtension = path
     //     .extname(file.originalname)
     //     .toLocaleLowerCase()
