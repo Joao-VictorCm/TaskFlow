@@ -19,15 +19,14 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { LoggerInterceptor } from 'src/common/interceptors/logger.interceptor';
 import { BodyCreateTaskInterceptor } from 'src/common/interceptors/body-create-task.interceptor';
 import { AddHeaderIntercptor } from 'src/common/interceptors/add-hader.interceptor';
-import { AuthAdminGuard } from 'src/common/guards/admin.guard';
+import { AuthTokenGuard } from 'src/auth/guards/auth-token.guard';
+import { TokenPatloadParm } from 'src/auth/param/token-payload.param';
+import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
 
 @Controller('tasks')
-@UseGuards(AuthAdminGuard)
 export class TasksController {
   constructor(private readonly taskService: TasksService) {}
   @Get()
-  @UseInterceptors(LoggerInterceptor)
-  @UseInterceptors(AddHeaderIntercptor)
   findAllTasks(@Query() paginationDto: PaginationDto) {
     return this.taskService.findAll(paginationDto);
   }
@@ -38,27 +37,34 @@ export class TasksController {
     return this.taskService.findOne(id);
   }
 
+  @UseGuards(AuthTokenGuard)
   @Post('/create')
-  @UseInterceptors(BodyCreateTaskInterceptor)
-  createTask(@Body() createTaskDto: CreateTaskDto) {
-    console.log(createTaskDto);
-
-    return this.taskService.create(createTaskDto);
+  createTask(
+    @Body() createTaskDto: CreateTaskDto,
+    @TokenPatloadParm() tokenPayload: PayloadTokenDto,
+  ) {
+    return this.taskService.create(createTaskDto, tokenPayload);
   }
 
+  @UseGuards(AuthTokenGuard)
   @Patch(':id')
   updateTask(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTaskDto: UpdateTaskDto,
+    @TokenPatloadParm() tokenPayload: PayloadTokenDto,
   ) {
-    return this.taskService.update(id, updateTaskDto);
+    return this.taskService.update(id, updateTaskDto, tokenPayload);
   }
 
+  @UseGuards(AuthTokenGuard)
   @Delete(':id')
-  deleteTask(@Param('id', ParseIntPipe) id: number) {
+  deleteTask(
+    @Param('id', ParseIntPipe) id: number,
+    @TokenPatloadParm() tokenPayload: PayloadTokenDto,
+  ) {
     console.log('ID enviado: ', id);
 
-    return this.taskService.delete(id);
+    return this.taskService.delete(id, tokenPayload);
   }
 }
 
