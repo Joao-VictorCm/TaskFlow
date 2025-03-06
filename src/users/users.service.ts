@@ -53,9 +53,8 @@ export class UsersService {
 
       return user;
     } catch (err) {
-      console.log(err);
       throw new HttpException(
-        'Usuario não encontrado!',
+        'Falha ao castra o usuario!',
         HttpStatus.BAD_REQUEST,
       );
     }

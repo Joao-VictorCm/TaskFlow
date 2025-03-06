@@ -1,6 +1,6 @@
 export class PayloadTokenDto {
   sub: number;
-  emial: string;
+  email: string;
   iat: number;
   exp: number;
   aud: number;
