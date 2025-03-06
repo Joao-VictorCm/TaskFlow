@@ -26,6 +26,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { create } from 'domain';
 import { hash } from 'crypto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Task } from 'src/tasks/entities/task.entity';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 describe('UsersService', () => {
   let userService: UsersService;
@@ -46,6 +48,7 @@ describe('UsersService', () => {
                 email: 'teste@gmail.com',
                 name: 'teste',
               }),
+              findFirst: jest.fn(),
             },
           },
         },
@@ -106,6 +109,60 @@ describe('UsersService', () => {
       id: 1,
       name: createUserDto.name,
       email: createUserDto.email,
+    });
+  });
+
+  it('Should  return a user findOne', async () => {
+    //Arrange
+    const mockUser = {
+      id: 1,
+      name: 'teste',
+      email: 'tete@gmail.com',
+      avatar: null,
+      Task: [],
+      passwordHash: 'hash_exemplo',
+      active: true,
+      createdAt: new Date(),
+    };
+
+    jest.spyOn(prismaService.user, 'findFirst').mockResolvedValue(mockUser);
+
+    const result = await userService.findOne(1);
+
+    expect(prismaService.user.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: 1,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true,
+        Task: true,
+      },
+    });
+
+    expect(result).toEqual(mockUser);
+  });
+
+  it('should thorw error expection when user is not found', async () => {
+    jest.spyOn(prismaService.user, 'findFirst').mockResolvedValue(null); //tratando de erros quando o usuario não existe
+
+    await expect(userService.findOne(1)).rejects.toThrow(
+      new HttpException('Usuario não encontrado!', HttpStatus.BAD_REQUEST),
+    );
+
+    expect(prismaService.user.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: 1,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true,
+        Task: true,
+      },
     });
   });
 });
