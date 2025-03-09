@@ -30,6 +30,8 @@ import { Task } from 'src/tasks/entities/task.entity';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
+import * as path from 'node:path';
+import * as fs from 'node:fs/promises';
 
 describe('UsersService', () => {
   let userService: UsersService;
@@ -436,6 +438,46 @@ describe('UsersService', () => {
           HttpStatus.BAD_REQUEST,
         ),
       );
+    });
+
+    it('should upload avar and update user successfully', async () => {
+      const tokenPayLoad: PayloadTokenDto = {
+        sub: 5,
+        aud: 0,
+        email: 'teste@gmail.com',
+        exp: 123,
+        iat: 123,
+        iss: 0,
+      };
+
+      const file = {
+        originalname: 'avatar.png',
+        mimetype: 'image/png',
+        buffer: Buffer.from(''),
+      } as Express.Multer.File;
+
+      const mockUser: any = {
+        id: 1,
+        name: 'teste',
+        email: 'tete@gmail.com',
+        avatar: null,
+      };
+
+      const updateUser: any = {
+        id: 1,
+        name: 'teste',
+        email: 'tete@gmail.com',
+        avatar: '1.png',
+      };
+
+      jest.spyOn(prismaService.user, 'findFirst').mockResolvedValue(mockUser);
+      jest.spyOn(prismaService.user, 'update').mockResolvedValue(updateUser);
+      jest.spyOn(fs, 'writeFile').mockResolvedValue();
+
+      const result = await userService.uploadAvatarImage(tokenPayLoad, file);
+      const fileLocale = path.resolve(process.cwd(), 'files', '1.png');
+
+      expect(fs.writeFile).toHaveBeenCalledWith(fileLocale, file.buffer);
     });
   });
 });
