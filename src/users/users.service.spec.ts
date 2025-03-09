@@ -371,5 +371,41 @@ describe('UsersService', () => {
 
       expect(prismaService.user.delete).not.toHaveBeenCalled();
     });
+
+    it('should delete user', async () => {
+      const tokenPayLoad: PayloadTokenDto = {
+        sub: 1,
+        aud: 0,
+        email: 'teste@gmail.com',
+        exp: 123,
+        iat: 123,
+        iss: 0,
+      };
+
+      const mockUser = {
+        id: 1,
+        name: 'teste',
+        email: 'tete@gmail.com',
+        avatar: null,
+        passwordHash: 'hash_exemplo',
+        active: true,
+        createdAt: new Date(),
+      };
+
+      jest.spyOn(prismaService.user, 'findFirst').mockResolvedValue(mockUser);
+      jest.spyOn(prismaService.user, 'delete').mockResolvedValue(mockUser);
+
+      const result = await userService.delete(1, tokenPayLoad);
+
+      expect(prismaService.user.delete).toHaveBeenCalledWith({
+        where: {
+          id: mockUser.id,
+        },
+      });
+
+      expect(result).toEqual({
+        message: 'Usuario foi deletado',
+      });
+    });
   });
 });
