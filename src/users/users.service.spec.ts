@@ -52,6 +52,7 @@ describe('UsersService', () => {
               }),
               findFirst: jest.fn(),
               update: jest.fn(),
+              delete: jest.fn(),
             },
           },
         },
@@ -262,65 +263,113 @@ describe('UsersService', () => {
         ),
       );
     });
+
+    it('should user update', async () => {
+      const updateUserDto: UpdateUserDto = {
+        name: 'novo nome',
+        password: 'nova senha',
+      };
+      const tokenPayLoad: PayloadTokenDto = {
+        sub: 1,
+        aud: 0,
+        email: 'teste@gmail.com',
+        exp: 123,
+        iat: 123,
+        iss: 0,
+      };
+
+      const mockUser = {
+        id: 1,
+        name: 'teste',
+        email: 'tete@gmail.com',
+        avatar: null,
+        passwordHash: 'hash_exemplo',
+        active: true,
+        createdAt: new Date(),
+      };
+
+      const updateUser = {
+        id: 1,
+        name: 'novo nome',
+        email: 'tete@gmail.com',
+        avatar: null,
+        Task: [],
+        passwordHash: 'novo_hash_exemplo',
+        active: true,
+        createdAt: new Date(),
+      };
+
+      jest.spyOn(prismaService.user, 'findFirst').mockResolvedValue(mockUser);
+      jest.spyOn(hashingService, 'hash').mockResolvedValue('novo_hash_exemplo');
+      jest.spyOn(prismaService.user, 'update').mockResolvedValue(updateUser);
+
+      const result = await userService.update(1, updateUserDto, tokenPayLoad);
+
+      expect(hashingService.hash).toHaveBeenCalledWith(updateUserDto.password);
+      expect(prismaService.user.update).toHaveBeenCalledWith({
+        where: {
+          id: 1,
+        },
+        data: {
+          name: updateUserDto.name,
+          passwordHash: 'novo_hash_exemplo',
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      });
+
+      expect(result).toEqual(updateUser);
+    });
   });
 
-  it('should user update', async () => {
-    const updateUserDto: UpdateUserDto = {
-      name: 'novo nome',
-      password: 'nova senha',
-    };
-    const tokenPayLoad: PayloadTokenDto = {
-      sub: 1,
-      aud: 0,
-      email: 'teste@gmail.com',
-      exp: 123,
-      iat: 123,
-      iss: 0,
-    };
+  describe('Delete User', () => {
+    it('Should throw error when user is not found', async () => {
+      const tokenPayLoad: PayloadTokenDto = {
+        sub: 1,
+        aud: 0,
+        email: 'teste@gmail.com',
+        exp: 123,
+        iat: 123,
+        iss: 0,
+      };
 
-    const mockUser = {
-      id: 1,
-      name: 'teste',
-      email: 'tete@gmail.com',
-      avatar: null,
-      passwordHash: 'hash_exemplo',
-      active: true,
-      createdAt: new Date(),
-    };
+      jest.spyOn(prismaService.user, 'findFirst').mockResolvedValue(null);
 
-    const updateUser = {
-      id: 1,
-      name: 'novo nome',
-      email: 'tete@gmail.com',
-      avatar: null,
-      Task: [],
-      passwordHash: 'novo_hash_exemplo',
-      active: true,
-      createdAt: new Date(),
-    };
-
-    jest.spyOn(prismaService.user, 'findFirst').mockResolvedValue(mockUser);
-    jest.spyOn(hashingService, 'hash').mockResolvedValue('novo_hash_exemplo');
-    jest.spyOn(prismaService.user, 'update').mockResolvedValue(updateUser);
-
-    const result = await userService.update(1, updateUserDto, tokenPayLoad);
-
-    expect(hashingService.hash).toHaveBeenCalledWith(updateUserDto.password);
-    expect(prismaService.user.update).toHaveBeenCalledWith({
-      where: {
-        id: 1,
-      },
-      data: {
-        name: updateUserDto.name,
-        passwordHash: 'novo_hash_exemplo',
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-      },
+      await expect(userService.delete(1, tokenPayLoad)).rejects.toThrow(
+        new HttpException('Falha ao deletar  usuario!', HttpStatus.BAD_REQUEST),
+      );
     });
 
-    expect(result).toEqual(updateUser);
+    it('should throw UNAUTHORIZED whem user is not authorized', async () => {
+      const tokenPayLoad: PayloadTokenDto = {
+        sub: 5,
+        aud: 0,
+        email: 'teste@gmail.com',
+        exp: 123,
+        iat: 123,
+        iss: 0,
+      };
+
+      const mockUser = {
+        id: 1,
+        name: 'teste',
+        email: 'tete@gmail.com',
+        avatar: null,
+        passwordHash: 'hash_exemplo',
+        active: true,
+        createdAt: new Date(),
+      };
+
+      jest.spyOn(prismaService.user, 'findFirst').mockResolvedValue(mockUser);
+
+      await expect(userService.delete(1, tokenPayLoad)).rejects.toThrow(
+        new HttpException('Falha ao deletar  usuario!', HttpStatus.BAD_REQUEST),
+      );
+
+      expect(prismaService.user.delete).not.toHaveBeenCalled();
+    });
   });
 });
