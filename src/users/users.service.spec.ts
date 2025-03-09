@@ -442,7 +442,7 @@ describe('UsersService', () => {
 
     it('should upload avar and update user successfully', async () => {
       const tokenPayLoad: PayloadTokenDto = {
-        sub: 5,
+        sub: 1,
         aud: 0,
         email: 'teste@gmail.com',
         exp: 123,
@@ -459,14 +459,14 @@ describe('UsersService', () => {
       const mockUser: any = {
         id: 1,
         name: 'teste',
-        email: 'tete@gmail.com',
+        email: 'teste@gmail.com',
         avatar: null,
       };
 
       const updateUser: any = {
         id: 1,
-        name: 'teste',
-        email: 'tete@gmail.com',
+        name: 'joao',
+        email: 'joao@gmail.com',
         avatar: '1.png',
       };
 
@@ -475,9 +475,26 @@ describe('UsersService', () => {
       jest.spyOn(fs, 'writeFile').mockResolvedValue();
 
       const result = await userService.uploadAvatarImage(tokenPayLoad, file);
+
       const fileLocale = path.resolve(process.cwd(), 'files', '1.png');
 
       expect(fs.writeFile).toHaveBeenCalledWith(fileLocale, file.buffer);
+      expect(prismaService.user.update).toHaveBeenCalledWith({
+        where: {
+          id: mockUser.id,
+        },
+        data: {
+          avatar: '1.png',
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+        },
+      });
+
+      expect(result).toEqual(updateUser);
     });
   });
 });
