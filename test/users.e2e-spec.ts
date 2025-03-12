@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import * as dotenv from 'dotenv';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { execSync } from 'node:child_process';
+import { isTypedSql } from '@prisma/client/runtime/library';
 
 dotenv.config({ path: '.env.test' });
 
@@ -25,7 +26,7 @@ describe('Users (e2e)', () => {
 
   beforeEach(async () => {
     execSync(
-      'cross-env DATABASE_URL=file:./dev-test.db jest npx prisma migrate deploy',
+      'cross-env DATABASE_URL=file:./dev-test.db npx prisma migrate deploy',
     );
 
     const module: TestingModule = await Test.createTestingModule({
@@ -55,5 +56,32 @@ describe('Users (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {});
+  afterEach(async () => {
+    await prismaService.user.deleteMany();
+  });
+
+  afterEach(async () => {
+    await app.close();
+  });
+
+  describe('/users', () => {
+    it('/users (POST) - createUser', async () => {
+      const createUserDto = {
+        name: 'Fulano',
+        email: 'fulano@gmail.como',
+        password: '123123',
+      };
+
+      const response = await request(app.getHttpServer())
+        .post('/users')
+        .send(createUserDto)
+        .expect(201);
+
+      expect(response.body).toEqual({
+        id: response.body.id,
+        name: 'Fulano',
+        email: 'fulano@gmail.como',
+      });
+    });
+  });
 });
