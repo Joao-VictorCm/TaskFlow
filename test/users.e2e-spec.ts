@@ -97,6 +97,41 @@ describe('Users (e2e)', () => {
         .expect(400);
     });
 
-    it('/users (PATCH) - update user', async () => {});
+    it('/users (PATCH) - update user', async () => {
+      const createUserDto = {
+        name: 'Fulano',
+        email: 'fulano@gmail.com',
+        password: '123123',
+      };
+
+      const updateUserDto = {
+        name: 'Ciclano',
+      };
+
+      const user = await request(app.getHttpServer())
+        .post('/users')
+        .send(createUserDto)
+        .expect(201);
+
+      const userId = user.body.id;
+
+      const auth = await request(app.getHttpServer()).post('/auth').send({
+        email: createUserDto.email,
+        password: createUserDto.password,
+      });
+
+      expect(auth.body.token).toEqual(auth.body.token);
+
+      const result = await request(app.getHttpServer())
+        .patch(`/users/${auth.body.id}`)
+        .set('Authorization', `Bearer ${auth.body.token}`)
+        .send(updateUserDto);
+
+      expect(result.body).toEqual({
+        id: userId,
+        name: updateUserDto.name, // Agora espera "Ciclano"
+        email: createUserDto.email,
+      });
+    });
   });
 });
