@@ -133,5 +133,33 @@ describe('Users (e2e)', () => {
         email: createUserDto.email,
       });
     });
+
+    it('/users (DELETE) - delete user', async () => {
+      //Cadastras um novo usuario
+      const createUserDto = {
+        name: 'Fulano',
+        email: 'fulano@gmail.como',
+        password: '123123',
+      };
+
+      //Cadastrar um usuario novo
+      const user = await request(app.getHttpServer())
+        .post('/users')
+        .send(createUserDto)
+        .expect(201);
+
+      //Logar esse usuario
+      const auth = await request(app.getHttpServer()).post('/auth').send({
+        email: createUserDto.email,
+        password: createUserDto.password,
+      });
+
+      //Deletando o usuario
+      const response = await request(app.getHttpServer())
+        .delete(`/users/${user.body.id}`)
+        .set('Authorization', `Bearer ${auth.body.token}`);
+
+      expect(response.body.message).toEqual('Usuario foi deletado');
+    });
   });
 });
