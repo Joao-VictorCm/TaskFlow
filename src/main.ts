@@ -11,6 +11,11 @@ import { ValidationPipe } from '@nestjs/common';
 //arquivo que inicia o projeto
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.enableCors({
+    origin: '*', //aceitando de qual origem vamos aceitar as solicitações http
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, //Se True ele remove as chaves que não estão no DTO
