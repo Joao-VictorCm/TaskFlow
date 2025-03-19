@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 /*
 -src/app.module.ts: Módulo principal do app
@@ -21,6 +22,17 @@ async function bootstrap() {
       whitelist: true, //Se True ele remove as chaves que não estão no DTO
     }),
   );
+
+  const configSwagger = new DocumentBuilder()
+    .setTitle('Lista de tasks')
+    .setDescription('API lista de tasks')
+    .setVersion('1.0')
+    .build();
+
+  const doucmentFactory = () =>
+    SwaggerModule.createDocument(app, configSwagger);
+  SwaggerModule.setup('docs', app, doucmentFactory);
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
