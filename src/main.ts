@@ -26,6 +26,7 @@ async function bootstrap() {
   const configSwagger = new DocumentBuilder()
     .setTitle('Lista de tasks')
     .setDescription('API lista de tasks')
+    .addBearerAuth()
     .setVersion('1.0')
     .build();
 

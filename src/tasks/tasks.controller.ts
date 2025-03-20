@@ -23,22 +23,27 @@ import { AuthTokenGuard } from 'src/auth/guards/auth-token.guard';
 import { TokenPatloadParm } from 'src/auth/param/token-payload.param';
 import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
 import { ResponseTaskDto } from './dto/response-task.dto';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly taskService: TasksService) {}
   @Get()
+  @ApiOperation({ summary: 'Listar todas as tasks' })
   findAllTasks(@Query() paginationDto: PaginationDto) {
     return this.taskService.findAll(paginationDto);
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Buscar detalhes de apenas uma task' })
   findOneTask(@Param('id', ParseIntPipe) id: number) {
     //Pegando o id da task
     return this.taskService.findOne(id);
   }
 
   @UseGuards(AuthTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Criar uma nova task' })
   @Post('/create')
   createTask(
     @Body() createTaskDto: CreateTaskDto,
@@ -48,6 +53,8 @@ export class TasksController {
   }
 
   @UseGuards(AuthTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Atualizar uma task específica' })
   @Patch(':id')
   updateTask(
     @Param('id', ParseIntPipe) id: number,
@@ -58,6 +65,8 @@ export class TasksController {
   }
 
   @UseGuards(AuthTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Deletar uma task' })
   @Delete(':id')
   deleteTask(
     @Param('id', ParseIntPipe) id: number,
