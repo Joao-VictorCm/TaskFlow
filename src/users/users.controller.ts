@@ -21,6 +21,7 @@ import { AuthTokenGuard } from 'src/auth/guards/auth-token.guard';
 import { TokenPatloadParm } from 'src/auth/param/token-payload.param';
 import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('users')
 export class UsersController {
@@ -57,6 +58,19 @@ export class UsersController {
   @UseGuards(AuthTokenGuard)
   @UseInterceptors(FileInterceptor('file'))
   //@UseInterceptors(FilesInterceptor('file'))
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @Post('upload')
   async uploadAvatar(
     @TokenPatloadParm() tokenPayLoad: PayloadTokenDto,
