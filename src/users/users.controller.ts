@@ -21,22 +21,31 @@ import { AuthTokenGuard } from 'src/auth/guards/auth-token.guard';
 import { TokenPatloadParm } from 'src/auth/param/token-payload.param';
 import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+} from '@nestjs/swagger';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
   @Get(':id')
+  @ApiOperation({ summary: 'Buscar detalhes de apenas um user' })
   findOneUser(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findOne(id);
   }
 
   @Post()
+  @ApiOperation({ summary: 'Cadastrar um novo usuário' })
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
   @UseGuards(AuthTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Atualizar um usuário' })
   @Patch(':id')
   updateUser(
     @Param('id', ParseIntPipe) id: number,
@@ -47,6 +56,8 @@ export class UsersController {
   }
 
   @UseGuards(AuthTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Deletar um usuário' })
   @Delete(':id')
   deleteUser(
     @Param('id', ParseIntPipe) id: number,
@@ -59,6 +70,7 @@ export class UsersController {
   @UseInterceptors(FileInterceptor('file'))
   //@UseInterceptors(FilesInterceptor('file'))
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Atualizar a foto do usuário' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
