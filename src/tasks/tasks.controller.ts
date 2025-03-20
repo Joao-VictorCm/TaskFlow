@@ -22,6 +22,7 @@ import { AddHeaderIntercptor } from 'src/common/interceptors/add-hader.intercept
 import { AuthTokenGuard } from 'src/auth/guards/auth-token.guard';
 import { TokenPatloadParm } from 'src/auth/param/token-payload.param';
 import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
+import { ResponseTaskDto } from './dto/response-task.dto';
 
 @Controller('tasks')
 export class TasksController {

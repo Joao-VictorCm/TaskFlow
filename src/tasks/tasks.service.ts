@@ -5,13 +5,13 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
-import { ResponseTaskDto } from './dto/response-task.dto';
+import { ResponseTaskDto } from '../tasks/dto/response-task.dto';
 
 @Injectable()
 export class TasksService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(paginationDto?: PaginationDto): Promise<ResponseTaskDto[]> {
+  async findAll(paginationDto?: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto || {};
 
     const allTask = await this.prisma.task.findMany({
