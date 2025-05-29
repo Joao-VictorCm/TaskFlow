@@ -47,7 +47,7 @@ Esta é uma API REST desenvolvida utilizando NestJS e Prisma ORM para gerenciame
 1. Clone o repositório
 
 ```
-git clone https://github.com/Joao-VictorCm/SEU-REPO.git
+git clone git@github.com:Joao-VictorCm/TaskFlow.git
 ```
 
 2. Instale as dependências
